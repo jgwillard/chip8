@@ -1,5 +1,4 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL.h>
 #include <stdio.h>
 
 #define SCREEN_WIDTH  800
@@ -9,12 +8,6 @@ int main(int argc, char* argv[]) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    // Initialize SDL_ttf
-    if (TTF_Init() == -1) {
-        printf("SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError());
         return 1;
     }
 
@@ -32,26 +25,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Load a font (Make sure you have a TTF font file, e.g., "Arial.ttf")
-    TTF_Font* font = TTF_OpenFont("/System/Library/Fonts/Supplemental/Arial.ttf", 48);
-    if (!font) {
-        printf("Failed to load font! TTF_Error: %s\n", TTF_GetError());
-        return 1;
-    }
-
-    // Create text surface & texture
-    SDL_Color textColor = {255, 255, 255, 255}; // White color
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Hello, SDL2!", textColor);
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    // Get text dimensions
-    int textWidth = textSurface->w;
-    int textHeight = textSurface->h;
-    SDL_FreeSurface(textSurface); // No longer needed
-
-    // Position the text in the center
-    SDL_Rect textRect = { (SCREEN_WIDTH - textWidth) / 2, (SCREEN_HEIGHT - textHeight) / 2, textWidth, textHeight };
-
     // Main loop
     SDL_Event e;
     int quit = 0;
@@ -66,17 +39,16 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
         SDL_RenderClear(renderer);
 
-        // Render text
-        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0);
+        SDL_Rect rect = { SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+        SDL_RenderFillRect(renderer, &rect);
+
         SDL_RenderPresent(renderer);
     }
 
     // Cleanup
-    SDL_DestroyTexture(textTexture);
-    TTF_CloseFont(font);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    TTF_Quit();
     SDL_Quit();
 
     return 0;
