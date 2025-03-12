@@ -6,9 +6,9 @@ CFLAGS = $(shell sdl2-config --cflags)
 # linker flags
 LDFLAGS = $(shell sdl2-config --libs)
 
-SRCS = hello.c
+SRCS = main.c chip8.c
 
-TARGET = hello
+TARGET = chip8
 
 all: $(TARGET)
 
