@@ -3,6 +3,4 @@
 #include <stdlib.h>
 #include <string.h>
 
-void chip8_init(Chip8* chip) {
-  memset(chip, 0, sizeof(Chip8));
-}
+void chip8_init(Chip8 *chip) { memset(chip, 0, sizeof(Chip8)); }

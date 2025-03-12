@@ -10,7 +10,6 @@ typedef struct Chip8 {
   uint8_t display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 } Chip8;
 
-void chip8_init(Chip8* chip);
+void chip8_init(Chip8 *chip);
 
 #endif
-
