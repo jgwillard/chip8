@@ -2,9 +2,9 @@
 #include <SDL.h>
 #include <stdio.h>
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 320
 #define SCALE 10
+#define SCREEN_WIDTH (DISPLAY_WIDTH * SCALE)
+#define SCREEN_HEIGHT (DISPLAY_HEIGHT * SCALE)
 
 void render_display(Chip8 *chip, SDL_Renderer *renderer) {
   // Clear screen
