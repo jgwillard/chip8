@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "/path/to/your/project",
+    "command": "cc -o chip8 main.c chip8.c -I/opt/homebrew/include/SDL2 -D_THREAD_SAFE -L/opt/homebrew/lib -lSDL2",
+    "file": "main.c"
+  },
+  {
+    "directory": "/path/to/your/project",
+    "command": "cc -o chip8 main.c chip8.c -I/opt/homebrew/include/SDL2 -D_THREAD_SAFE -L/opt/homebrew/lib -lSDL2",
+    "file": "chip8.c"
+  }
+]
