@@ -188,3 +188,33 @@ void op_FX55(Chip8 *chip, uint16_t opcode) { return; }
  * starting at address I; I := I + X + 1)
  */
 void op_FX65(Chip8 *chip, uint16_t opcode) { return; }
+
+/**
+ * FUNCTION POINTER TABLES
+ */
+OpcodeHandler opcode_0XXX_table[0x100] = {
+    [0xE0] = op_00E0,
+    [0xEE] = op_00EE,
+};
+
+OpcodeHandler opcode_8XYN_table[0x10] = {
+    [0x0] = op_8XY0, [0x1] = op_8XY1, [0x2] = op_8XY2,
+    [0x3] = op_8XY3, [0x4] = op_8XY4, [0x5] = op_8XY5,
+    [0x6] = op_8XY6, [0x7] = op_8XY7, [0xE] = op_8XYE,
+};
+
+OpcodeHandler opcode_EXXX_table[0x100] = {
+    [0x9E] = op_EX9E,
+    [0xA1] = op_EXA1,
+};
+
+OpcodeHandler opcode_FXXX_table[0x100] = {
+    [0x07] = op_FX07, [0x0A] = op_FX0A, [0x15] = op_FX15,
+    [0x18] = op_FX18, [0x1E] = op_FX1E, [0x29] = op_FX29,
+    [0x33] = op_FX33, [0x55] = op_FX55, [0x65] = op_FX65,
+};
+
+OpcodeHandler opcode_main_table[0x10] = {
+    [0x1] = op_1NNN, [0x2] = op_2NNN, [0x3] = op_3XNN, [0x4] = op_4XNN,
+    [0x5] = op_5XY0, [0x6] = op_6XNN, [0x7] = op_7XNN, [0x9] = op_9XY0,
+    [0xA] = op_ANNN, [0xB] = op_BNNN, [0xC] = op_CXNN, [0xD] = op_DXYN};

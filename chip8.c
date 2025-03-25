@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include "SDL_timer.h"
+#include "opcodes.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -67,5 +68,40 @@ uint16_t chip8_fetch(Chip8 *chip) {
 }
 
 void chip8_decode_execute(Chip8 *chip, uint16_t opcode) {
-  // TODO
+  uint8_t first_nibble = opcode >> 12;
+  uint8_t last_nibble = opcode & 0x000F;
+  uint8_t last_byte = opcode & 0x00FF;
+  OpcodeHandler handler;
+
+  switch (first_nibble) {
+  case 0x0:
+    handler = opcode_0XXX_table[last_byte];
+    if (handler)
+      handler(chip, opcode);
+    break;
+
+  case 0x8:
+    handler = opcode_8XYN_table[last_nibble];
+    if (handler)
+      handler(chip, opcode);
+    break;
+
+  case 0xE:
+    handler = opcode_EXXX_table[last_byte];
+    if (handler)
+      handler(chip, opcode);
+    break;
+
+  case 0xF:
+    handler = opcode_FXXX_table[last_byte];
+    if (handler)
+      handler(chip, opcode);
+    break;
+
+  default:
+    handler = opcode_main_table[first_nibble];
+    if (handler)
+      handler(chip, opcode);
+    break;
+  }
 }
