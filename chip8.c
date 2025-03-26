@@ -13,11 +13,11 @@ void chip8_init(Chip8 *chip) {
   chip->PC = PROGRAM_START;
 }
 
-void chip8_load_rom(Chip8 *chip, const char *filename) {
+int chip8_load_rom(Chip8 *chip, const char *filename) {
   FILE *file = fopen(filename, "rb");
   if (!file) {
     perror("Failed to open ROM");
-    return;
+    return 1;
   }
 
   fseek(file, 0, SEEK_END);
@@ -27,18 +27,20 @@ void chip8_load_rom(Chip8 *chip, const char *filename) {
   if (size > (MEMORY_SIZE - PROGRAM_START)) {
     perror("ROM too large");
     fclose(file);
-    return;
+    return 1;
   }
 
   fread(&chip->memory[PROGRAM_START], size, 1, file);
   fclose(file);
+  return 0;
 }
 
 void chip8_run(Chip8 *chip, chip8_draw_callback draw,
-               chip8_input_callback input, void *userdata) {
+               chip8_input_callback input, chip8_event_callback handle_events,
+               void *userdata) {
   uint64_t last_time = SDL_GetTicks();
 
-  while (true) {
+  while (handle_events()) {
     uint32_t current_time = SDL_GetTicks();
     uint32_t elapsed_time = current_time - last_time;
 

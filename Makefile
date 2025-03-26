@@ -1,10 +1,10 @@
 CC = cc
 
 # compiler and linker flags
-CFLAGS = $(shell sdl2-config --cflags)
+CFLAGS = $(shell sdl2-config --cflags) -Wall -Wextra -std=c11 -g
 LDFLAGS = $(shell sdl2-config --libs)
 
-SRCS = main.c chip8.c
+SRCS = main.c chip8.c opcodes.c
 OBJS = $(SRCS:.c=.o)
 TARGET = chip8
 

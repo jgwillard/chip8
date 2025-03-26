@@ -1,6 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define PROGRAM_START 0x200
@@ -27,11 +28,13 @@ typedef struct Chip8 {
 
 typedef void (*chip8_draw_callback)(void *userdata);
 typedef void (*chip8_input_callback)(uint8_t *keypad);
+typedef bool (*chip8_event_callback)(void);
 
 void chip8_init(Chip8 *chip);
-void chip8_rom_load(Chip8 *chip, const char *filename);
+int chip8_load_rom(Chip8 *chip, const char *filename);
 void chip8_run(Chip8 *chip, chip8_draw_callback draw,
-               chip8_input_callback input, void *userdata);
+               chip8_input_callback input, chip8_event_callback handle_events,
+               void *userdata);
 void chip8_cycle(Chip8 *chip);
 uint16_t chip8_fetch(Chip8 *chip);
 void chip8_decode_execute(Chip8 *chip, uint16_t opcode);
