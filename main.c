@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 
   if (argc < 2) {
     printf("Usage: %s <ROM>\n", argv[0]);
-    // return 1;
+    return 1;
   }
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
