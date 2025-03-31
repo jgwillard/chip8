@@ -22,7 +22,7 @@ void op_00EE(Chip8 *chip, uint16_t opcode) { return; }
 /**
  * jump to address NNN
  */
-void op_1NNN(Chip8 *chip, uint16_t opcode) { chip->I = opcode & 0x0FFF; }
+void op_1NNN(Chip8 *chip, uint16_t opcode) { chip->PC = opcode & 0x0FFF; }
 
 /**
  * execute subroutine starting at address NNN
@@ -36,7 +36,7 @@ void op_3XNN(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t n = opcode & 0x00FF;
   if (chip->V[x] == n) {
-    chip->I += 2;
+    chip->PC += 2;
   }
 }
 
@@ -47,7 +47,7 @@ void op_4XNN(Chip8 *chip, uint16_t opcode) {
   uint8_t x = opcode & 0x0F00 >> 8;
   uint8_t n = opcode & 0x00FF;
   if (chip->V[x] != n) {
-    chip->I += 2;
+    chip->PC += 2;
   }
 }
 
@@ -58,7 +58,7 @@ void op_5XY0(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   if (x == y) {
-    chip->I += 2;
+    chip->PC += 2;
   }
 }
 
@@ -158,14 +158,14 @@ void op_9XY0(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   if (chip->V[x] != chip->V[y]) {
-    chip->I += 2;
+    chip->PC += 2;
   }
 }
 
 /**
  * I := NNN (store memory address NNN to register I)
  */
-void op_ANNN(Chip8 *chip, uint16_t opcode) { return; }
+void op_ANNN(Chip8 *chip, uint16_t opcode) { chip->I = opcode & 0x0FFF; }
 
 /**
  * jump to address NNN + V0
@@ -220,7 +220,10 @@ void op_FX18(Chip8 *chip, uint16_t opcode) { return; }
 /**
  * I += VX (add value stored in register VX to register I)
  */
-void op_FX1E(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX1E(Chip8 *chip, uint16_t opcode) {
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  chip->I += chip->V[x];
+}
 
 /**
  * I := hex VX (set I to the address corresponding to the hexadecimal
