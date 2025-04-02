@@ -1,5 +1,16 @@
 #include "opcodes.h"
+#include "chip8.h"
 #include <stdint.h>
+#include <string.h>
+
+/**
+ * HELPER FUNCTIONS
+ */
+
+/**
+ * increment program counter
+ */
+void _inc_pc(Chip8 *chip) { chip->PC += 2; }
 
 /**
  * OPCODES
@@ -12,12 +23,19 @@
 /**
  * clear the screen
  */
-void op_00E0(Chip8 *chip, uint16_t opcode) { return; }
+void op_00E0(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  memset(chip->display, 0, sizeof(chip->display));
+}
 
 /**
  * return from a subroutine
  */
-void op_00EE(Chip8 *chip, uint16_t opcode) { return; }
+void op_00EE(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  chip->PC = chip->stack[chip->SP];
+  chip->SP--;
+}
 
 /**
  * jump to address NNN
@@ -27,16 +45,22 @@ void op_1NNN(Chip8 *chip, uint16_t opcode) { chip->PC = opcode & 0x0FFF; }
 /**
  * execute subroutine starting at address NNN
  */
-void op_2NNN(Chip8 *chip, uint16_t opcode) { return; }
+void op_2NNN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  chip->stack[chip->SP] = chip->PC;
+  chip->PC = opcode & 0x0FFF;
+  chip->SP++;
+}
 
 /**
  * if VX != n then execute the following instruction, else skip
  */
 void op_3XNN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t n = opcode & 0x00FF;
   if (chip->V[x] == n) {
-    chip->PC += 2;
+    _inc_pc(chip);
   }
 }
 
@@ -44,10 +68,11 @@ void op_3XNN(Chip8 *chip, uint16_t opcode) {
  * if VX == n then execute the following instruction, else skip
  */
 void op_4XNN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = opcode & 0x0F00 >> 8;
   uint8_t n = opcode & 0x00FF;
   if (chip->V[x] != n) {
-    chip->PC += 2;
+    _inc_pc(chip);
   }
 }
 
@@ -55,10 +80,11 @@ void op_4XNN(Chip8 *chip, uint16_t opcode) {
  * if VX != VY then execute the following instruction, else skip
  */
 void op_5XY0(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   if (x == y) {
-    chip->PC += 2;
+    _inc_pc(chip);
   }
 }
 
@@ -66,6 +92,7 @@ void op_5XY0(Chip8 *chip, uint16_t opcode) {
  * VX := NN (store NN in register VX)
  */
 void op_6XNN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t n = opcode & 0x00FF;
   chip->V[x] = n;
@@ -75,6 +102,7 @@ void op_6XNN(Chip8 *chip, uint16_t opcode) {
  * VX += NN (add value NN to register VX)
  */
 void op_7XNN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t n = opcode & 0x00FF;
   chip->V[x] = n;
@@ -84,6 +112,7 @@ void op_7XNN(Chip8 *chip, uint16_t opcode) {
  * VX := VY (store value of VY in VX)
  */
 void op_8XY0(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] = chip->V[y];
@@ -93,6 +122,7 @@ void op_8XY0(Chip8 *chip, uint16_t opcode) {
  * VX |= VY (set VX to VX | VY)
  */
 void op_8XY1(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] |= chip->V[y];
@@ -102,6 +132,7 @@ void op_8XY1(Chip8 *chip, uint16_t opcode) {
  * VX &= VY (set VX to VX & VY)
  */
 void op_8XY2(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] &= chip->V[y];
@@ -111,6 +142,7 @@ void op_8XY2(Chip8 *chip, uint16_t opcode) {
  * VX ^= VY (set VX to VX ^ VY)
  */
 void op_8XY3(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] ^= chip->V[y];
@@ -120,6 +152,7 @@ void op_8XY3(Chip8 *chip, uint16_t opcode) {
  * VX += VY (set VX to VX + VY, set VF to 1 if carry occurs, else 0)
  */
 void op_8XY4(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] += chip->V[y];
@@ -129,6 +162,7 @@ void op_8XY4(Chip8 *chip, uint16_t opcode) {
  * VX -= VY (set VX to VX - VY, set VF to 0 if borrow occurs, else 1)
  */
 void op_8XY5(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] -= chip->V[y];
@@ -155,10 +189,11 @@ void op_8XYE(Chip8 *chip, uint16_t opcode) { return; }
  * if VX == VY then execute the following instruction, else skip
  */
 void op_9XY0(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   if (chip->V[x] != chip->V[y]) {
-    chip->PC += 2;
+    _inc_pc(chip);
   }
 }
 
@@ -170,7 +205,10 @@ void op_ANNN(Chip8 *chip, uint16_t opcode) { chip->I = opcode & 0x0FFF; }
 /**
  * jump to address NNN + V0
  */
-void op_BNNN(Chip8 *chip, uint16_t opcode) { return; }
+void op_BNNN(Chip8 *chip, uint16_t opcode) {
+  uint16_t n = opcode & 0x0FFF;
+  chip->PC = n + chip->V[0];
+}
 
 /**
  * VX := RANDOM && NN (set VX to a random 8-bit (0-255) number with a
@@ -221,6 +259,7 @@ void op_FX18(Chip8 *chip, uint16_t opcode) { return; }
  * I += VX (add value stored in register VX to register I)
  */
 void op_FX1E(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   chip->I += chip->V[x];
 }
