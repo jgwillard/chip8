@@ -221,7 +221,25 @@ void op_CXNN(Chip8 *chip, uint16_t opcode) { return; }
  * starting at the address stored in register I
  * set VF to 1 on collision (i.e. any pixels change from 1 to 0)
  */
-void op_DXYN(Chip8 *chip, uint16_t opcode) { return; }
+void op_DXYN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  chip->V[0xF] = 0;
+  uint8_t x_pointer = (opcode & 0x0F00) >> 8;
+  uint8_t y_pointer = (opcode & 0x00F0) >> 4;
+  uint8_t x = chip->V[x_pointer];
+  uint8_t y = chip->V[y_pointer];
+  uint8_t n = opcode & 0x000F;
+  for (int i = 0; i < n; i++) {
+    uint8_t byte = chip->memory[chip->I];
+    for (int j = 0; j < 8; j++) {
+      int bit = (8 - j) & byte;
+      chip->display[y * DISPLAY_HEIGHT + x + j] ^= bit;
+      if (chip->display[y * DISPLAY_HEIGHT + x + j] == 0 && bit == 1) {
+        chip->V[0xF] = 1;
+      }
+    }
+  }
+}
 
 /**
  * if the key corresponding to the value in VX is not pressed, execute
