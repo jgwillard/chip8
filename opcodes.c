@@ -1,6 +1,7 @@
 #include "opcodes.h"
 #include "chip8.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 /**
@@ -105,7 +106,7 @@ void op_7XNN(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t n = opcode & 0x00FF;
-  chip->V[x] = n;
+  chip->V[x] += n;
 }
 
 /**
@@ -200,7 +201,10 @@ void op_9XY0(Chip8 *chip, uint16_t opcode) {
 /**
  * I := NNN (store memory address NNN to register I)
  */
-void op_ANNN(Chip8 *chip, uint16_t opcode) { chip->I = opcode & 0x0FFF; }
+void op_ANNN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  chip->I = opcode & 0x0FFF;
+}
 
 /**
  * jump to address NNN + V0
@@ -232,7 +236,7 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
   for (int i = 0; i < n; i++) {
     uint8_t byte = chip->memory[chip->I];
     for (int j = 0; j < 8; j++) {
-      int bit = (8 - j) & byte;
+      int bit = (1 << (7 - j)) & byte;
       chip->display[y * DISPLAY_HEIGHT + x + j] ^= bit;
       if (chip->display[y * DISPLAY_HEIGHT + x + j] == 0 && bit == 1) {
         chip->V[0xF] = 1;

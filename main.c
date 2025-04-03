@@ -80,8 +80,6 @@ int main(int argc, char *argv[]) {
   renderer_init(renderer);
 
   chip8_init(&chip);
-  // TEST set first pixel to white
-  chip.display[0] = 1;
 
   int load_err = chip8_load_rom(&chip, argv[1]);
   if (load_err) {
