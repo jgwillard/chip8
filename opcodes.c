@@ -237,8 +237,9 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
     uint8_t byte = chip->memory[chip->I + i];
     for (int j = 0; j < 8; j++) {
       int bit = (1 << (7 - j)) & byte;
-      chip->display[(y + i) * DISPLAY_HEIGHT + x + j] ^= bit;
-      if (chip->display[(y + i) * DISPLAY_HEIGHT + x + j] == 0 && bit == 1) {
+      int pixel = (y + i) * DISPLAY_WIDTH + x + j;
+      chip->display[pixel] ^= bit;
+      if (chip->display[pixel] == 0 && bit == 1) {
         chip->V[0xF] = 1;
       }
     }
