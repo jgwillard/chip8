@@ -29,14 +29,20 @@ typedef struct Chip8 {
 typedef void (*chip8_draw_callback)(void *userdata);
 typedef void (*chip8_input_callback)(uint8_t *keypad);
 typedef bool (*chip8_event_callback)(void);
+typedef uint64_t (*chip8_time_func)(void);
 
 void chip8_init(Chip8 *chip);
+
 int chip8_load_rom(Chip8 *chip, const char *filename);
+
 void chip8_run(Chip8 *chip, chip8_draw_callback draw,
                chip8_input_callback input, chip8_event_callback handle_events,
-               void *userdata);
+               chip8_time_func current_time, void *userdata);
+
 void chip8_cycle(Chip8 *chip);
+
 uint16_t chip8_fetch(Chip8 *chip);
+
 void chip8_decode_execute(Chip8 *chip, uint16_t opcode);
 
 #endif

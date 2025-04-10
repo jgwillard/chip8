@@ -1,3 +1,4 @@
+#include "SDL_timer.h"
 #include "chip8.h"
 #include <SDL.h>
 #include <signal.h>
@@ -86,7 +87,8 @@ int main(int argc, char *argv[]) {
     return load_err;
   }
 
-  chip8_run(&chip, render_display, sdl_input, handle_sdl_events, renderer);
+  chip8_run(&chip, render_display, sdl_input, handle_sdl_events, SDL_GetTicks64,
+            renderer);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
