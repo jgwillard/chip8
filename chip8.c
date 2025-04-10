@@ -35,20 +35,17 @@ int chip8_load_rom(Chip8 *chip, const char *filename) {
 }
 
 void chip8_run(Chip8 *chip, chip8_draw_callback draw,
-               chip8_input_callback input, chip8_event_callback handle_events,
+               chip8_event_callback handle_events,
                chip8_time_func get_current_time, void *userdata) {
+
   uint64_t last_time = get_current_time();
 
-  while (handle_events()) {
+  while (handle_events(chip->keypad)) {
     uint64_t current_time = get_current_time();
     uint64_t elapsed_time = current_time - last_time;
 
     if (elapsed_time >= (1000 / 60)) {
       last_time = current_time;
-
-      if (input) {
-        input(chip->keypad);
-      }
 
       chip8_cycle(chip);
 

@@ -1,3 +1,4 @@
+#include "SDL_events.h"
 #include "SDL_timer.h"
 #include "chip8.h"
 #include <SDL.h>
@@ -31,22 +32,24 @@ void render_display(void *userdata) {
   SDL_RenderPresent(renderer);
 }
 
-void sdl_input(uint8_t *keypad) {
-  // TODO
-}
-
-bool handle_sdl_events() {
+bool handle_sdl_events(uint8_t *keypad) {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
-    if (e.type == SDL_QUIT || e.type == SDL_KEYDOWN) {
+    if (e.type == SDL_QUIT) {
       return false;
+    }
+    if (e.type == SDL_KEYDOWN) {
+      printf("key pressed\n");
+    }
+    if (e.type == SDL_KEYUP) {
+      printf("key released\n");
     }
   }
   return true;
 }
 
 void handle_sigint(int sig) {
-  printf("\nInterrupt signal detected. Exiting...\n");
+  printf("\nInterrupt signal %i detected. Exiting...\n", sig);
   exit(0);
 }
 
@@ -66,6 +69,7 @@ int main(int argc, char *argv[]) {
   SDL_Window *window =
       SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                        SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+
   if (!window) {
     printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
     return 1;
@@ -73,6 +77,7 @@ int main(int argc, char *argv[]) {
 
   SDL_Renderer *renderer =
       SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
   if (!renderer) {
     printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
     return 1;
@@ -87,8 +92,7 @@ int main(int argc, char *argv[]) {
     return load_err;
   }
 
-  chip8_run(&chip, render_display, sdl_input, handle_sdl_events, SDL_GetTicks64,
-            renderer);
+  chip8_run(&chip, render_display, handle_sdl_events, SDL_GetTicks64, renderer);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
