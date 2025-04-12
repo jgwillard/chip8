@@ -159,7 +159,8 @@ int main(int argc, char *argv[]) {
     return load_err;
   }
 
-  chip8_run(&chip, render_display, handle_sdl_events, SDL_GetTicks64, renderer);
+  chip8_run(&chip, render_display, handle_sdl_events, SDL_GetTicks64, SDL_Delay,
+            renderer);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);

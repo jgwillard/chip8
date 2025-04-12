@@ -246,6 +246,7 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
       }
     }
   }
+  chip->draw_flag = true;
 }
 
 /**
