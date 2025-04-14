@@ -41,32 +41,40 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
                chip8_sleep_func sleep_for_milliseconds, void *userdata) {
 
   bool running = true;
-  const uint64_t cycles_per_second = 700.0;
-  const uint64_t frames_per_second = 60.0;
+  const uint32_t cycles_per_second = 700.0;
+  const uint32_t frames_per_second = 60.0;
 
-  const uint64_t milliseconds_per_cycle = 1000.0 / cycles_per_second;
-  const uint64_t milliseconds_per_frame = 1000.0 / frames_per_second;
+  const uint32_t milliseconds_per_cycle = 1000.0 / cycles_per_second;
+  const uint32_t milliseconds_per_frame = 1000.0 / frames_per_second;
 
-  uint64_t cycle_accumulator = 0.0;
-  uint64_t frame_accumulator = 0.0;
+  uint32_t cycle_accumulator = 0.0;
+  uint32_t frame_accumulator = 0.0;
 
-  uint64_t last_time = get_current_time();
+  uint32_t last_time = get_current_time();
 
   while (running) {
+    // for each iteration, update keypad data
     running = handle_events(chip->keypad);
 
-    uint64_t current_time = get_current_time();
-    uint64_t elapsed_time = current_time - last_time;
+    // get amount of time since last iteration
+    double current_time = get_current_time();
+    double elapsed_time = current_time - last_time;
     last_time = current_time;
 
+    // accumulators keep amount of time that has passed since last
+    // iteration
     cycle_accumulator += elapsed_time;
     frame_accumulator += elapsed_time;
 
+    // run the number of CPU cycles that should have run since the last
+    // iteration (this can vary depending on the host)
     while (cycle_accumulator >= milliseconds_per_cycle) {
       chip8_cycle(chip);
       cycle_accumulator -= milliseconds_per_cycle;
     }
 
+    // run a frame update if enough time has elapsed (update timers and
+    // draw screen if display has been updated)
     if (frame_accumulator >= milliseconds_per_frame) {
       chip8_update_timers(chip);
       frame_accumulator -= milliseconds_per_frame;
