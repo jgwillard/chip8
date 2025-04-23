@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include "opcodes.h"
+#include <inttypes.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -7,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+bool DEBUG = false;
 
 void chip8_init(Chip8 *chip) {
   memset(chip, 0, sizeof(Chip8));
@@ -40,17 +43,20 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
                chip8_time_func get_current_time,
                chip8_sleep_func sleep_for_milliseconds, void *userdata) {
 
+  uint64_t instruction_counter = 0;
+  double instruction_timer = 0.0;
+
   bool running = true;
-  const uint32_t cycles_per_second = 700.0;
-  const uint32_t frames_per_second = 60.0;
+  const double cycles_per_second = 350.0;
+  const double frames_per_second = 60.0;
 
-  const uint32_t milliseconds_per_cycle = 1000.0 / cycles_per_second;
-  const uint32_t milliseconds_per_frame = 1000.0 / frames_per_second;
+  const double milliseconds_per_cycle = 1000.0 / cycles_per_second;
+  const double milliseconds_per_frame = 1000.0 / frames_per_second;
 
-  uint32_t cycle_accumulator = 0.0;
-  uint32_t frame_accumulator = 0.0;
+  double cycle_accumulator = 0.0;
+  double frame_accumulator = 0.0;
 
-  uint32_t last_time = get_current_time();
+  double last_time = get_current_time();
 
   while (running) {
     // for each iteration, update keypad data
@@ -70,6 +76,7 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
     // iteration (this can vary depending on the host)
     while (cycle_accumulator >= milliseconds_per_cycle) {
       chip8_cycle(chip);
+      instruction_counter++;
       cycle_accumulator -= milliseconds_per_cycle;
     }
 
@@ -85,14 +92,25 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
       }
     }
 
-    uint64_t next_cycle_due = milliseconds_per_cycle - cycle_accumulator;
-    uint64_t next_timer_due = milliseconds_per_frame - frame_accumulator;
-    uint64_t sleep_time = fmin(next_cycle_due, next_timer_due);
+    // calculate the amount of time we can safely sleep (so the program
+    // does not use 100% and waste iterations) before we need to
+    // run another loop
+    double next_cycle_due = milliseconds_per_cycle - cycle_accumulator;
+    double next_timer_due = milliseconds_per_frame - frame_accumulator;
+    uint32_t sleep_time =
+        (uint32_t)fmax(1.0, fmin(next_cycle_due, next_timer_due));
 
-    if (sleep_time > 0.5) {
-      sleep_for_milliseconds(sleep_time);
-    } else {
-      sleep_for_milliseconds(0.0);
+    sleep_for_milliseconds(sleep_time);
+
+    if (DEBUG) {
+      // print execution speed info
+      instruction_timer += elapsed_time;
+      if (instruction_timer >= 1000.0) {
+        printf("Executed %" PRIu64 " instructions in last second\n",
+               instruction_counter);
+        instruction_counter = 0;
+        instruction_timer = 0.0;
+      }
     }
   }
 }
