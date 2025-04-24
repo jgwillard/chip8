@@ -264,7 +264,11 @@ void op_EXA1(Chip8 *chip, uint16_t opcode) { return; }
 /**
  * VX := delay (store current value of delay timer in VX)
  */
-void op_FX07(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX07(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  chip->V[x] = chip->delay_timer;
+}
 
 /**
  * VX := key (wait for keypress and store value in VX)
@@ -274,12 +278,20 @@ void op_FX0A(Chip8 *chip, uint16_t opcode) { return; }
 /**
  * delay := VX (set the delay timer to the value of register VX)
  */
-void op_FX15(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX15(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  chip->delay_timer = chip->V[x];
+}
 
 /**
  * sound := VX (set the sound timer to the value of register VX)
  */
-void op_FX18(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX18(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  chip->sound_timer = chip->V[x];
+}
 
 /**
  * I += VX (add value stored in register VX to register I)
