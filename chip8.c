@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool DEBUG = false;
+bool DEBUG = true;
 
 void chip8_init(Chip8 *chip) {
   memset(chip, 0, sizeof(Chip8));
@@ -43,11 +43,12 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
                chip8_time_func get_current_time,
                chip8_sleep_func sleep_for_milliseconds, void *userdata) {
 
+  double debug_timer = 0.0;
   uint64_t instruction_counter = 0;
-  double instruction_timer = 0.0;
+  uint64_t frame_counter = 0;
 
   bool running = true;
-  const double cycles_per_second = 350.0;
+  const double cycles_per_second = 700.0;
   const double frames_per_second = 60.0;
 
   const double milliseconds_per_cycle = 1000.0 / cycles_per_second;
@@ -82,9 +83,10 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
 
     // run a frame update if enough time has elapsed (update timers and
     // draw screen if display has been updated)
-    if (frame_accumulator >= milliseconds_per_frame) {
+    while (frame_accumulator >= milliseconds_per_frame) {
       chip8_update_timers(chip);
       frame_accumulator -= milliseconds_per_frame;
+      frame_counter++;
 
       if (draw && chip->draw_flag) {
         draw(userdata);
@@ -103,13 +105,15 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
     sleep_for_milliseconds(sleep_time);
 
     if (DEBUG) {
-      // print execution speed info
-      instruction_timer += elapsed_time;
-      if (instruction_timer >= 1000.0) {
+      // print execution speed and FPS info
+      debug_timer += elapsed_time;
+      if (debug_timer >= 1000.0) {
         printf("Executed %" PRIu64 " instructions in last second\n",
                instruction_counter);
         instruction_counter = 0;
-        instruction_timer = 0.0;
+        printf("Rendered %" PRIu64 " frames in last second\n", frame_counter);
+        frame_counter = 0;
+        debug_timer = 0.0;
       }
     }
   }
