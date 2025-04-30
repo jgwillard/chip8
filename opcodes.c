@@ -33,7 +33,6 @@ void op_00E0(Chip8 *chip, uint16_t opcode) {
  * return from a subroutine
  */
 void op_00EE(Chip8 *chip, uint16_t opcode) {
-  _inc_pc(chip);
   chip->PC = chip->stack[chip->SP];
   chip->SP--;
 }
@@ -48,9 +47,9 @@ void op_1NNN(Chip8 *chip, uint16_t opcode) { chip->PC = opcode & 0x0FFF; }
  */
 void op_2NNN(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
+  chip->SP++;
   chip->stack[chip->SP] = chip->PC;
   chip->PC = opcode & 0x0FFF;
-  chip->SP++;
 }
 
 /**
