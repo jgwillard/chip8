@@ -70,7 +70,7 @@ void op_3XNN(Chip8 *chip, uint16_t opcode) {
  */
 void op_4XNN(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
-  uint8_t x = opcode & 0x0F00 >> 8;
+  uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t n = opcode & 0x00FF;
   if (chip->V[x] != n) {
     _inc_pc(chip);
