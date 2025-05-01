@@ -172,7 +172,13 @@ void op_8XY5(Chip8 *chip, uint16_t opcode) {
  * set VX to VY >> 1 (shifted right one bit), set VF to least
  * significant (rightmost) bit prior to the shift
  */
-void op_8XY6(Chip8 *chip, uint16_t opcode) { return; }
+void op_8XY6(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
+  chip->V[0xF] = chip->V[y] & 1;
+  chip->V[x] = chip->V[y] >> 1;
+}
 
 /**
  * set VX to VY - VX, set VF to 0 if borrow occurs, else 1)
@@ -181,16 +187,21 @@ void op_8XY7(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
-  uint8_t diff = chip->V[y] - chip->V[x];
-  chip->V[0xF] = (diff < 0) ? 0 : 1;
-  chip->V[x] = diff;
+  chip->V[x] = chip->V[y] - chip->V[x];
+  chip->V[0xF] = (chip->V[x] < 0) ? 0 : 1;
 }
 
 /**
  * set VX to VY << 1 (shifted left one bit), set VF to most
  * significant (leftmost) bit prior to the shift
  */
-void op_8XYE(Chip8 *chip, uint16_t opcode) { return; }
+void op_8XYE(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
+  chip->V[0xF] = chip->V[y] & 8;
+  chip->V[x] = chip->V[y] << 1;
+}
 
 /**
  * if VX == VY then execute the following instruction, else skip
@@ -322,15 +333,33 @@ void op_FX33(Chip8 *chip, uint16_t opcode) { return; }
 
 /**
  * save VX (store the values of registers V0-VX in memory starting at
- * address I; I := I + X + 1)
+ * address I)
+ *
+ * note that some older implementations also set I := I + X + 1
  */
-void op_FX55(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX55(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  for (int i = 0; i <= x; i++) {
+    chip->memory[chip->I + i] = chip->V[i];
+  }
+  // chip->I = chip->I + x + 1;
+}
 
 /**
  * load VX (set values of regsiters V0-VX with the values in memory
- * starting at address I; I := I + X + 1)
+ * starting at address I)
+ *
+ * note that some older implementations also set I := I + X + 1
  */
-void op_FX65(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX65(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  for (int i = 0; i <= x; i++) {
+    chip->V[i] = chip->memory[chip->I + i];
+  }
+  // chip->I = chip->I + x + 1;
+}
 
 /**
  * FUNCTION POINTER TABLES
