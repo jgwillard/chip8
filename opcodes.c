@@ -177,7 +177,14 @@ void op_8XY6(Chip8 *chip, uint16_t opcode) { return; }
 /**
  * set VX to VY - VX, set VF to 0 if borrow occurs, else 1)
  */
-void op_8XY7(Chip8 *chip, uint16_t opcode) { return; }
+void op_8XY7(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t y = (opcode & 0x00F0) >> 4;
+  uint8_t diff = chip->V[y] - chip->V[x];
+  chip->V[0xF] = (diff < 0) ? 0 : 1;
+  chip->V[x] = diff;
+}
 
 /**
  * set VX to VY << 1 (shifted left one bit), set VF to most
