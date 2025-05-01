@@ -32,7 +32,7 @@ typedef bool (*chip8_event_callback)(uint8_t *keypad);
 typedef uint64_t (*chip8_time_func)(void);
 typedef void (*chip8_sleep_func)(uint32_t ms);
 
-void chip8_init(Chip8 *chip);
+void chip8_init(Chip8 *chip, double clock_speed, bool debug);
 
 int chip8_load_rom(Chip8 *chip, const char *filename);
 

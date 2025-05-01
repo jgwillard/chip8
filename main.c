@@ -123,10 +123,39 @@ void handle_sigint(int sig) {
 int main(int argc, char *argv[]) {
   signal(SIGINT, handle_sigint);
 
-  if (argc < 2) {
-    printf("Usage: %s <ROM>\n", argv[0]);
+  const char *rom_path = NULL;
+  bool debug = false;
+  double clock_speed = 700.0;
+
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--debug") == 0) {
+      debug = 1;
+    } else if (strcmp(argv[i], "--clock-speed") == 0) {
+      if (i + 1 < argc) {
+        clock_speed = atof(argv[++i]);
+      } else {
+        fprintf(stderr, "Missing value for --clock-speed\n");
+        return 1;
+      }
+    } else {
+      if (rom_path == NULL) {
+        rom_path = argv[i];
+      } else {
+        fprintf(stderr, "Unknown extra argument: %s\n", argv[i]);
+        return 1;
+      }
+    }
+  }
+
+  if (!rom_path) {
+    fprintf(stderr, "Usage: %s <rom_file> [--debug] [--clock-speed Hz]\n",
+            argv[0]);
     return 1;
   }
+
+  printf("ROM: %s\n", rom_path);
+  printf("Debug mode: %s\n", debug ? "ON" : "OFF");
+  printf("Clock speed: %.1f Hz\n", clock_speed);
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -152,9 +181,9 @@ int main(int argc, char *argv[]) {
 
   renderer_init(renderer);
 
-  chip8_init(&chip);
+  chip8_init(&chip, clock_speed, debug);
 
-  int load_err = chip8_load_rom(&chip, argv[1]);
+  int load_err = chip8_load_rom(&chip, rom_path);
   if (load_err) {
     return load_err;
   }
