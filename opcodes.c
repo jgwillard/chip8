@@ -329,7 +329,14 @@ void op_FX29(Chip8 *chip, uint16_t opcode) { return; }
  * bcd VX (store the binary-coded decimal equivalent of the value stored
  * in VX at addresses I, I + 1, and I + 2)
  */
-void op_FX33(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX33(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t val = chip->V[x];
+  chip->memory[chip->I] = val / 100;
+  chip->memory[chip->I + 1] = val % 100 / 10;
+  chip->memory[chip->I + 2] = val % 10;
+}
 
 /**
  * save VX (store the values of registers V0-VX in memory starting at
