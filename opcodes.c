@@ -205,8 +205,9 @@ void op_8XYE(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
-  chip->V[0xF] = chip->V[y] & 8;
+  uint8_t carry = chip->V[y] >> 7;
   chip->V[x] = chip->V[y] << 1;
+  chip->V[0xF] = carry;
 }
 
 /**
