@@ -155,7 +155,9 @@ void op_8XY4(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
-  chip->V[x] += chip->V[y];
+  uint16_t res = chip->V[x] + chip->V[y];
+  chip->V[x] = res;
+  chip->V[0xF] = res >> 8;
 }
 
 /**
@@ -165,7 +167,9 @@ void op_8XY5(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
-  chip->V[x] -= chip->V[y];
+  uint16_t res = chip->V[x] - chip->V[y];
+  chip->V[0xF] = !(res > 255);
+  chip->V[x] = res;
 }
 
 /**
@@ -188,7 +192,7 @@ void op_8XY7(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] = chip->V[y] - chip->V[x];
-  chip->V[0xF] = (chip->V[x] < 0) ? 0 : 1;
+  chip->V[0xF] = !(chip->V[x] < 0);
 }
 
 /**
