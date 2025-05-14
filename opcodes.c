@@ -277,13 +277,26 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
  * if the key corresponding to the value in VX is not pressed, execute
  * the following instruction; otherwise skip
  */
-void op_EX9E(Chip8 *chip, uint16_t opcode) { return; }
+void op_EX9E(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  if (chip->keypad[x]) {
+    _inc_pc(chip);
+  }
+}
 
 /**
  * if the key corresponding to the value in VX is pressed, execute
  * the following instruction; otherwise skip
  */
-void op_EXA1(Chip8 *chip, uint16_t opcode) { return; }
+void op_EXA1(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  printf("keypad[%x]: %x\n", x, chip->keypad[x]);
+  if (!chip->keypad[x]) {
+    _inc_pc(chip);
+  }
+}
 
 /**
  * VX := delay (store current value of delay timer in VX)
@@ -297,7 +310,15 @@ void op_FX07(Chip8 *chip, uint16_t opcode) {
 /**
  * VX := key (wait for keypress and store value in VX)
  */
-void op_FX0A(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX0A(Chip8 *chip, uint16_t opcode) {
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  for (int i = 0; i < KEYPAD_SIZE; i++) {
+    if (chip->keypad[i]) {
+      chip->V[x] = i;
+      _inc_pc(chip);
+    }
+  }
+}
 
 /**
  * delay := VX (set the delay timer to the value of register VX)
