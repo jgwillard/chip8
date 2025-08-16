@@ -25,6 +25,7 @@ typedef struct Chip8 {
   uint16_t stack[STACK_SIZE];
   uint8_t SP;
   bool draw_flag;
+  bool block_flag;
 } Chip8;
 
 typedef void (*chip8_draw_callback)(void *userdata);

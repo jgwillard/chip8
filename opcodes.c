@@ -2,6 +2,7 @@
 #include "chip8.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -242,7 +243,12 @@ void op_BNNN(Chip8 *chip, uint16_t opcode) {
  * VX := RANDOM && NN (set VX to a random 8-bit (0-255) number with a
  * mask of NN)
  */
-void op_CXNN(Chip8 *chip, uint16_t opcode) { return; }
+void op_CXNN(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  uint8_t n = (opcode & 0x00FF);
+  chip->V[x] = (rand() % 256) & n;
+}
 
 /**
  * draw a sprite at position (VX, VY) with N bytes of sprite data
@@ -280,7 +286,8 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
 void op_EX9E(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
-  if (chip->keypad[x]) {
+  uint8_t key = chip->V[x];
+  if (chip->keypad[key]) {
     _inc_pc(chip);
   }
 }
@@ -292,8 +299,8 @@ void op_EX9E(Chip8 *chip, uint16_t opcode) {
 void op_EXA1(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
-  printf("keypad[%x]: %x\n", x, chip->keypad[x]);
-  if (!chip->keypad[x]) {
+  uint8_t key = chip->V[x];
+  if (!chip->keypad[key]) {
     _inc_pc(chip);
   }
 }
@@ -312,12 +319,17 @@ void op_FX07(Chip8 *chip, uint16_t opcode) {
  */
 void op_FX0A(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
+
   for (int i = 0; i < KEYPAD_SIZE; i++) {
     if (chip->keypad[i]) {
       chip->V[x] = i;
       _inc_pc(chip);
+      chip->block_flag = false;
+      return;
     }
   }
+
+  chip->block_flag = true;
 }
 
 /**

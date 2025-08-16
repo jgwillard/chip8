@@ -18,7 +18,6 @@ double cycles_per_second;
 void chip8_init(Chip8 *chip, double clock_speed, bool debug_flag) {
   memset(chip, 0, sizeof(Chip8));
   chip->PC = PROGRAM_START;
-
   cycles_per_second = clock_speed;
   debug = debug_flag;
 }
@@ -148,6 +147,19 @@ void chip8_update_timers(Chip8 *chip) {
  * execute a single CPU cycle (fetch, decode, execute)
  */
 void chip8_cycle(Chip8 *chip) {
+  if (chip->block_flag) {
+    // We should be sitting on FX0A. Re-run it so it can check the keypad.
+    uint16_t opcode = chip8_fetch(chip);
+
+    // Safety: ensure we’re actually on FX0A (F?0A).
+    if ((opcode & 0xF0FF) == 0xF00A) {
+      chip8_decode_execute(chip, opcode); // calls op_FX0A again
+    } else {
+      // If we ever get here, clear the block to avoid deadlock.
+      chip->block_flag = false;
+    }
+    return;
+  }
   uint16_t opcode = chip8_fetch(chip);
   chip8_decode_execute(chip, opcode);
 }
