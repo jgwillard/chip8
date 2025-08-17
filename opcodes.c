@@ -84,7 +84,7 @@ void op_5XY0(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
-  if (x == y) {
+  if (chip->V[x] == chip->V[y]) {
     _inc_pc(chip);
   }
 }
