@@ -20,7 +20,13 @@ void renderer_init(SDL_Renderer *renderer) {
 
 void render_display(void *userdata) {
   SDL_Renderer *renderer = (SDL_Renderer *)userdata;
+
+  // clear screen before redrawing
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
   SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
   for (int y = 0; y < DISPLAY_HEIGHT; y++) {
     for (int x = 0; x < DISPLAY_WIDTH; x++) {
       if (chip.display[y * DISPLAY_WIDTH + x]) {
