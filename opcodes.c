@@ -28,6 +28,7 @@ void _inc_pc(Chip8 *chip) { chip->PC += 2; }
 void op_00E0(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   memset(chip->display, 0, sizeof(chip->display));
+  chip->draw_flag = true;
 }
 
 /**
@@ -127,6 +128,8 @@ void op_8XY1(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] |= chip->V[y];
+  // VF reset on for chip8
+  chip->V[0xF] = 0;
 }
 
 /**
@@ -137,6 +140,8 @@ void op_8XY2(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] &= chip->V[y];
+  // VF reset on for chip8
+  chip->V[0xF] = 0;
 }
 
 /**
@@ -147,6 +152,8 @@ void op_8XY3(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] ^= chip->V[y];
+  // VF reset on for chip8
+  chip->V[0xF] = 0;
 }
 
 /**
@@ -263,6 +270,7 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
   uint8_t x = chip->V[x_register] % DISPLAY_WIDTH;
   uint8_t y = chip->V[y_register] % DISPLAY_HEIGHT;
   uint8_t n = opcode & 0x000F;
+
   for (uint8_t i = 0; i < n; i++) {
     // read the next byte of the sprite
     uint8_t byte = chip->memory[chip->I + i];
@@ -390,7 +398,8 @@ void op_FX55(Chip8 *chip, uint16_t opcode) {
   for (int i = 0; i <= x; i++) {
     chip->memory[chip->I + i] = chip->V[i];
   }
-  // chip->I = chip->I + x + 1;
+  // increment the index register for chip8
+  chip->I = chip->I + x + 1;
 }
 
 /**
@@ -405,7 +414,8 @@ void op_FX65(Chip8 *chip, uint16_t opcode) {
   for (int i = 0; i <= x; i++) {
     chip->V[i] = chip->memory[chip->I + i];
   }
-  // chip->I = chip->I + x + 1;
+  // increment the index register for chip8
+  chip->I = chip->I + x + 1;
 }
 
 /**
