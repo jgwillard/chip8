@@ -12,8 +12,8 @@ extern OpcodeHandler opcode_EXXX_table[0x100];
 extern OpcodeHandler opcode_FXXX_table[0x100];
 extern OpcodeHandler opcode_main_table[0x10];
 
-void op_00E0(Chip8 *chip, uint16_t opcode);
-void op_00EE(Chip8 *chip, uint16_t opcode);
+void op_00E0(Chip8 *chip, __attribute__((unused)) uint16_t opcode);
+void op_00EE(Chip8 *chip, __attribute__((unused)) uint16_t opcode);
 
 void op_1NNN(Chip8 *chip, uint16_t opcode);
 void op_2NNN(Chip8 *chip, uint16_t opcode);
