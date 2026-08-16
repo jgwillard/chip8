@@ -263,6 +263,19 @@ void op_CXNN(Chip8 *chip, uint16_t opcode) {
  * set VF to 1 on collision (i.e. any pixels change from 1 to 0)
  */
 void op_DXYN(Chip8 *chip, uint16_t opcode) {
+
+  // if display is throttled to one update per frame, check flag
+  // flag and exit before incrementing program counter
+  if (chip->quirks->draw_waits_for_vblank && !chip->draw_permitted) {
+    // leave PC unchanged; program will encounter this opcode again
+    return;
+  }
+
+  // block subsequent executions until next frame completes
+  if (chip->quirks->draw_waits_for_vblank) {
+    chip->draw_permitted = false;
+  }
+
   _inc_pc(chip);
   chip->V[0xF] = 0;
   uint8_t x_register = (opcode & 0x0F00) >> 8;

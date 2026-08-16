@@ -13,6 +13,16 @@
 #define STACK_SIZE 16
 #define KEYPAD_SIZE 16
 
+typedef struct Chip8Quirks {
+  bool logic_resets_vf;
+  bool load_store_increment_i;
+  // throttle draw opcode to one execution per frame
+  bool draw_waits_for_vblank;
+  bool clip_sprites;
+  bool shift_uses_vx;
+  bool jump_uses_vx;
+} Chip8Quirks;
+
 typedef struct Chip8 {
   uint8_t display[DISPLAY_WIDTH * DISPLAY_HEIGHT];
   uint8_t keypad[KEYPAD_SIZE];
@@ -26,6 +36,8 @@ typedef struct Chip8 {
   uint8_t SP;
   bool draw_flag;
   bool block_flag;
+  bool draw_permitted;
+  Chip8Quirks *quirks;
 } Chip8;
 
 typedef void (*chip8_draw_callback)(void *userdata);
@@ -33,7 +45,8 @@ typedef bool (*chip8_event_callback)(uint8_t *keypad);
 typedef uint64_t (*chip8_time_func)(void);
 typedef void (*chip8_sleep_func)(uint32_t ms);
 
-void chip8_init(Chip8 *chip, double clock_speed, bool debug);
+void chip8_init(Chip8 *chip, double clock_speed, bool debug,
+                Chip8Quirks *quirks);
 
 int chip8_load_rom(Chip8 *chip, const char *filename);
 

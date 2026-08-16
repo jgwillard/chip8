@@ -10,7 +10,20 @@
 #define SCREEN_WIDTH (DISPLAY_WIDTH * SCALE)
 #define SCREEN_HEIGHT (DISPLAY_HEIGHT * SCALE)
 
+/**
+ * the emulator instance
+ */
 Chip8 chip;
+
+/**
+ * original chip8 quirks flags
+ */
+Chip8Quirks quirks = {.logic_resets_vf = true,
+                      .load_store_increment_i = true,
+                      .draw_waits_for_vblank = true,
+                      .clip_sprites = true,
+                      .shift_uses_vx = false,
+                      .jump_uses_vx = false};
 
 void renderer_init(SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -187,7 +200,7 @@ int main(int argc, char *argv[]) {
 
   renderer_init(renderer);
 
-  chip8_init(&chip, clock_speed, debug);
+  chip8_init(&chip, clock_speed, debug, &quirks);
 
   int load_err = chip8_load_rom(&chip, rom_path);
   if (load_err) {

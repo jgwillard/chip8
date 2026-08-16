@@ -15,11 +15,13 @@ double cycles_per_second;
 /**
  * initialize chip8 struct and set global variables
  */
-void chip8_init(Chip8 *chip, double clock_speed, bool debug_flag) {
+void chip8_init(Chip8 *chip, double clock_speed, bool debug_flag,
+                Chip8Quirks *quirks) {
   memset(chip, 0, sizeof(Chip8));
   chip->PC = PROGRAM_START;
   cycles_per_second = clock_speed;
   debug = debug_flag;
+  chip->quirks = quirks;
 }
 
 /**
@@ -98,6 +100,9 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
       chip8_update_timers(chip);
       frame_accumulator -= milliseconds_per_frame;
       frame_counter++;
+
+      // allow one draw instruction to be executed this frame
+      chip->draw_permitted = true;
 
       if (draw && chip->draw_flag) {
         draw(userdata);
