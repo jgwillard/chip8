@@ -1,9 +1,10 @@
-#include "opcodes.h"
-#include "chip8.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "chip8.h"
+#include "opcodes.h"
 
 /**
  * HELPER FUNCTIONS
@@ -398,7 +399,11 @@ void op_FX1E(Chip8 *chip, uint16_t opcode) {
  * I := hex VX (set I to the address corresponding to the hexadecimal
  * digit stored in register VX)
  */
-void op_FX29(Chip8 *chip, uint16_t opcode) { return; }
+void op_FX29(Chip8 *chip, uint16_t opcode) {
+  _inc_pc(chip);
+  uint8_t x = (opcode & 0x0F00) >> 8;
+  chip->I = chip->memory[FONT_START + FONT_WIDTH * chip->V[x]];
+}
 
 /**
  * bcd VX (store the binary-coded decimal equivalent of the value stored
