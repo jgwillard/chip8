@@ -128,8 +128,9 @@ void op_8XY1(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] |= chip->V[y];
-  // VF reset on for chip8
-  chip->V[0xF] = 0;
+  if (chip->quirks->logic_resets_vf) {
+    chip->V[0xF] = 0;
+  }
 }
 
 /**
@@ -140,8 +141,9 @@ void op_8XY2(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] &= chip->V[y];
-  // VF reset on for chip8
-  chip->V[0xF] = 0;
+  if (chip->quirks->logic_resets_vf) {
+    chip->V[0xF] = 0;
+  }
 }
 
 /**
@@ -152,8 +154,9 @@ void op_8XY3(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
   uint8_t y = (opcode & 0x00F0) >> 4;
   chip->V[x] ^= chip->V[y];
-  // VF reset on for chip8
-  chip->V[0xF] = 0;
+  if (chip->quirks->logic_resets_vf) {
+    chip->V[0xF] = 0;
+  }
 }
 
 /**
