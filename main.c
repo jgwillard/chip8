@@ -1,10 +1,10 @@
-#include <signal.h>
-#include <stdbool.h>
-#include <stdio.h>
-
 #include "SDL_events.h"
 #include "SDL_timer.h"
 #include <SDL.h>
+
+#include <signal.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 #include "chip8.h"
 

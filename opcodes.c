@@ -26,7 +26,7 @@ void _inc_pc(Chip8 *chip) { chip->PC += 2; }
 /**
  * clear the screen
  */
-void op_00E0(Chip8 *chip, uint16_t opcode) {
+void op_00E0(Chip8 *chip, __attribute__((unused)) uint16_t opcode) {
   _inc_pc(chip);
   memset(chip->display, 0, sizeof(chip->display));
   chip->draw_flag = true;
@@ -35,7 +35,7 @@ void op_00E0(Chip8 *chip, uint16_t opcode) {
 /**
  * return from a subroutine
  */
-void op_00EE(Chip8 *chip, uint16_t opcode) {
+void op_00EE(Chip8 *chip, __attribute__((unused)) uint16_t opcode) {
   chip->PC = chip->stack[chip->SP];
   chip->SP--;
 }
@@ -402,7 +402,7 @@ void op_FX1E(Chip8 *chip, uint16_t opcode) {
 void op_FX29(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
-  chip->I = chip->memory[FONT_START + FONT_WIDTH * chip->V[x]];
+  chip->I = FONT_START + FONT_WIDTH * (chip->V[x] & 0x0F);
 }
 
 /**
