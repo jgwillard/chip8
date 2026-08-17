@@ -44,9 +44,7 @@ void chip8_init(Chip8 *chip, double clock_speed, bool debug_flag,
   debug = debug_flag;
   chip->quirks = quirks;
   // load font
-  for (int i = FONT_START; i < font_len; i++) {
-    chip->memory[i] = vip_font[i];
-  }
+  memcpy(&chip->memory[FONT_START], vip_font, font_len);
 }
 
 /**
@@ -191,6 +189,12 @@ void chip8_cycle(Chip8 *chip) {
     return;
   }
   uint16_t opcode = chip8_fetch(chip);
+
+  if (debug) {
+    printf("PC=%03X OPCODE=%04X V0=%02X V1=%02X ... I=%03X\n", chip->PC, opcode,
+           chip->V[0], chip->V[1], chip->I);
+  }
+
   chip8_decode_execute(chip, opcode);
 }
 

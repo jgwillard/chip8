@@ -397,12 +397,14 @@ void op_FX1E(Chip8 *chip, uint16_t opcode) {
 
 /**
  * I := hex VX (set I to the address corresponding to the hexadecimal
- * digit stored in register VX)
+ * digit stored in the lower nibble of register VX)
  */
 void op_FX29(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
-  chip->I = FONT_START + FONT_WIDTH * (chip->V[x] & 0x0F);
+  // zero out upper nibble because there are only 16 characters, so
+  // only the lower nibble is semantically valuable
+  chip->I = FONT_START + FONT_SIZE_BYTES * (chip->V[x] & 0x0F);
 }
 
 /**

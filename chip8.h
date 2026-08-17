@@ -13,7 +13,7 @@
 #define NUM_REGISTERS 16
 #define STACK_SIZE 16
 #define KEYPAD_SIZE 16
-#define FONT_WIDTH 5
+#define FONT_SIZE_BYTES 5
 
 typedef struct Chip8Quirks {
   // logic opcodes reset VF to 0
@@ -21,6 +21,7 @@ typedef struct Chip8Quirks {
   bool load_store_increment_i;
   // throttle draw opcode to one execution per frame
   bool draw_waits_for_vblank;
+  // sprites get clipped at edge of display (no wrap)
   bool clip_sprites;
   bool shift_uses_vx;
   bool jump_uses_vx;
