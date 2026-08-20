@@ -161,7 +161,7 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
 /**
  * handle key event
  */
-void chip8_key_event(Chip8 *chip, uint8_t key, Chip8KeyDirection dir) {
+void chip8_key_event(Chip8 *chip, uint8_t key, Chip8EventType dir) {
   if (dir == CHIP8_KEY_DOWN) {
     chip->keypad[key] = true;
     // TODO implement FX0A code here (set waiting key, block flag, etc)

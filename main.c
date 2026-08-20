@@ -65,7 +65,7 @@ void render_display(void *userdata) {
  * will work the same under QWERTY, AZERTY, or other layouts
  */
 void handle_key_events(SDL_Event e, Chip8 *chip) {
-  Chip8KeyDirection dir = e.type == SDL_KEYDOWN ? CHIP8_KEY_DOWN : CHIP8_KEY_UP;
+  Chip8EventType dir = e.type == SDL_KEYDOWN ? CHIP8_KEY_DOWN : CHIP8_KEY_UP;
   switch (e.key.keysym.scancode) {
   case SDL_SCANCODE_1:
     chip8_key_event(chip, 0x1, dir);
