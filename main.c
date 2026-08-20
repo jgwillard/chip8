@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
 
   const char *rom_path = NULL;
   bool debug = false;
-  double clock_speed = 700.0;
+  double clock_speed = 6000.0;
 
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--debug") == 0) {
