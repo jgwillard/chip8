@@ -64,73 +64,73 @@ void render_display(void *userdata) {
  * scancodes are used instead of keycodes so that the mapping
  * will work the same under QWERTY, AZERTY, or other layouts
  */
-void handle_key_events(SDL_Event e, uint8_t *keypad) {
-  bool pressed = e.type == SDL_KEYDOWN;
+void handle_key_events(SDL_Event e, Chip8 *chip) {
+  Chip8KeyDirection dir = e.type == SDL_KEYDOWN ? CHIP8_KEY_DOWN : CHIP8_KEY_UP;
   switch (e.key.keysym.scancode) {
   case SDL_SCANCODE_1:
-    keypad[0x1] = pressed;
+    chip8_key_event(chip, 0x1, dir);
     break;
   case SDL_SCANCODE_2:
-    keypad[0x2] = pressed;
+    chip8_key_event(chip, 0x2, dir);
     break;
   case SDL_SCANCODE_3:
-    keypad[0x3] = pressed;
+    chip8_key_event(chip, 0x3, dir);
     break;
   case SDL_SCANCODE_4:
-    keypad[0xC] = pressed;
+    chip8_key_event(chip, 0xC, dir);
     break;
 
   case SDL_SCANCODE_Q:
-    keypad[0x4] = pressed;
+    chip8_key_event(chip, 0x4, dir);
     break;
   case SDL_SCANCODE_W:
-    keypad[0x5] = pressed;
+    chip8_key_event(chip, 0x5, dir);
     break;
   case SDL_SCANCODE_E:
-    keypad[0x6] = pressed;
+    chip8_key_event(chip, 0x6, dir);
     break;
   case SDL_SCANCODE_R:
-    keypad[0xD] = pressed;
+    chip8_key_event(chip, 0xD, dir);
     break;
 
   case SDL_SCANCODE_A:
-    keypad[0x7] = pressed;
+    chip8_key_event(chip, 0x7, dir);
     break;
   case SDL_SCANCODE_S:
-    keypad[0x8] = pressed;
+    chip8_key_event(chip, 0x8, dir);
     break;
   case SDL_SCANCODE_D:
-    keypad[0x9] = pressed;
+    chip8_key_event(chip, 0x9, dir);
     break;
   case SDL_SCANCODE_F:
-    keypad[0xE] = pressed;
+    chip8_key_event(chip, 0xE, dir);
     break;
 
   case SDL_SCANCODE_Z:
-    keypad[0xA] = pressed;
+    chip8_key_event(chip, 0xA, dir);
     break;
   case SDL_SCANCODE_X:
-    keypad[0x0] = pressed;
+    chip8_key_event(chip, 0x0, dir);
     break;
   case SDL_SCANCODE_C:
-    keypad[0xB] = pressed;
+    chip8_key_event(chip, 0xB, dir);
     break;
   case SDL_SCANCODE_V:
-    keypad[0xF] = pressed;
+    chip8_key_event(chip, 0xF, dir);
     break;
 
   default:; // noop
   }
 }
 
-bool handle_sdl_events(uint8_t *keypad) {
+bool handle_sdl_events(Chip8 *chip) {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
       return false;
     }
     if (e.type == SDL_KEYUP || e.type == SDL_KEYDOWN) {
-      handle_key_events(e, keypad);
+      handle_key_events(e, chip);
     }
   }
   return true;

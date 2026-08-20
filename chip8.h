@@ -44,8 +44,13 @@ typedef struct Chip8 {
   Chip8Quirks *quirks;
 } Chip8;
 
+typedef enum Chip8KeyDirection {
+  CHIP8_KEY_DOWN,
+  CHIP8_KEY_UP
+} Chip8KeyDirection;
+
 typedef void (*chip8_draw_callback)(void *userdata);
-typedef bool (*chip8_event_callback)(uint8_t *keypad);
+typedef bool (*chip8_event_callback)(Chip8 *chip);
 typedef uint64_t (*chip8_time_func)(void);
 typedef void (*chip8_sleep_func)(uint32_t ms);
 
@@ -59,6 +64,8 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
                chip8_sleep_func sleep, void *userdata);
 
 void chip8_cycle(Chip8 *chip);
+
+void chip8_key_event(Chip8 *chip, uint8_t key, Chip8KeyDirection direction);
 
 void chip8_update_timers(Chip8 *chip);
 

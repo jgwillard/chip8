@@ -403,7 +403,7 @@ void op_FX29(Chip8 *chip, uint16_t opcode) {
   _inc_pc(chip);
   uint8_t x = (opcode & 0x0F00) >> 8;
   // zero out upper nibble because there are only 16 characters, so
-  // only the lower nibble is semantically valuable
+  // the content of VX should be treated as a 4 bit value
   chip->I = FONT_START + FONT_SIZE_BYTES * (chip->V[x] & 0x0F);
 }
 

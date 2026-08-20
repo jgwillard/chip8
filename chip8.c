@@ -97,7 +97,7 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
 
   while (running) {
     // for each iteration, update keypad data
-    running = handle_events(chip->keypad);
+    running = handle_events(chip);
 
     // get amount of time since last iteration
     double current_time = get_current_time();
@@ -159,6 +159,19 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
 }
 
 /**
+ * handle key event
+ */
+void chip8_key_event(Chip8 *chip, uint8_t key, Chip8KeyDirection dir) {
+  if (dir == CHIP8_KEY_DOWN) {
+    chip->keypad[key] = true;
+    // TODO implement FX0A code here (set waiting key, block flag, etc)
+  } else {
+    chip->keypad[key] = false;
+    // TODO implement FX0A code here (check key matches waiting key etc)
+  }
+}
+
+/**
  * update timers
  *
  * this is called once per frame as both the frame rate and timer
@@ -211,8 +224,8 @@ uint16_t chip8_fetch(Chip8 *chip) {
  * dispatch instruction to appropriate opcode handler
  *
  * there are five opcode tables; each instruction is dispatched to one
- * of them according to the value of its first nibble (first 4 bits or
- * half byte)
+ * of them according to the value of its highest nibble (leftmost 4
+ * bits or half byte)
  */
 void chip8_decode_execute(Chip8 *chip, uint16_t opcode) {
   uint8_t first_nibble = opcode >> 12;
