@@ -39,7 +39,9 @@ typedef struct Chip8 {
   uint16_t stack[STACK_SIZE];
   uint8_t SP;
   bool draw_flag;
-  bool block_flag;
+  bool FX0A_waiting;
+  uint8_t FX0A_key;
+  uint8_t FX0A_reg;
   bool draw_permitted;
   Chip8Quirks *quirks;
 } Chip8;

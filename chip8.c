@@ -45,6 +45,8 @@ void chip8_init(Chip8 *chip, double clock_speed, bool debug_flag,
   chip->quirks = quirks;
   // load font
   memcpy(&chip->memory[FONT_START], vip_font, font_len);
+  // not waiting for any key input on init
+  chip->FX0A_key = -1;
 }
 
 /**
@@ -164,10 +166,20 @@ void chip8_run(Chip8 *chip, chip8_draw_callback draw,
 void chip8_key_event(Chip8 *chip, uint8_t key, Chip8EventType dir) {
   if (dir == CHIP8_KEY_DOWN) {
     chip->keypad[key] = true;
-    // TODO implement FX0A code here (set waiting key, block flag, etc)
+
+    if (chip->FX0A_waiting) {
+      chip->FX0A_key = key;
+    }
   } else {
     chip->keypad[key] = false;
-    // TODO implement FX0A code here (check key matches waiting key etc)
+
+    // TODO see if some of this logic can be moved to opcodes.c
+    if (chip->FX0A_key == key) {
+      chip->V[chip->FX0A_reg] = key;
+      chip->FX0A_key = -1;
+      chip->FX0A_waiting = false;
+      chip->PC += 2;
+    }
   }
 }
 
@@ -188,17 +200,8 @@ void chip8_update_timers(Chip8 *chip) {
  * execute a single CPU cycle (fetch, decode, execute)
  */
 void chip8_cycle(Chip8 *chip) {
-  if (chip->block_flag) {
-    // We should be sitting on FX0A. Re-run it so it can check the keypad.
-    uint16_t opcode = chip8_fetch(chip);
-
-    // Safety: ensure we’re actually on FX0A (F?0A).
-    if ((opcode & 0xF0FF) == 0xF00A) {
-      chip8_decode_execute(chip, opcode); // calls op_FX0A again
-    } else {
-      // If we ever get here, clear the block to avoid deadlock.
-      chip->block_flag = false;
-    }
+  // TODO investigate how early return affects cycle_accumulator
+  if (chip->FX0A_waiting) {
     return;
   }
   uint16_t opcode = chip8_fetch(chip);

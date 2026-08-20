@@ -356,16 +356,8 @@ void op_FX07(Chip8 *chip, uint16_t opcode) {
 void op_FX0A(Chip8 *chip, uint16_t opcode) {
   uint8_t x = (opcode & 0x0F00) >> 8;
 
-  for (int i = 0; i < KEYPAD_SIZE; i++) {
-    if (chip->keypad[i]) {
-      chip->V[x] = i;
-      _inc_pc(chip);
-      chip->block_flag = false;
-      return;
-    }
-  }
-
-  chip->block_flag = true;
+  chip->FX0A_reg = x;
+  chip->FX0A_waiting = true;
 }
 
 /**
