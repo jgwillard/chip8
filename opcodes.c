@@ -294,7 +294,7 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
     uint8_t byte = chip->memory[chip->I + i];
     uint8_t py = y + i;
     // clip sprite if flag set
-    if (chip->quirks->clip_sprites && py > DISPLAY_HEIGHT) {
+    if (chip->quirks->clip_sprites && py >= DISPLAY_HEIGHT) {
       break;
     }
     for (uint8_t j = 0; j < 8; j++) {
@@ -302,7 +302,7 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
       uint8_t bit = (1 << (7 - j) & byte) >> (7 - j);
       uint8_t px = x + j;
       // clip sprite if flag set
-      if (chip->quirks->clip_sprites && px > DISPLAY_WIDTH) {
+      if (chip->quirks->clip_sprites && px >= DISPLAY_WIDTH) {
         break;
       }
       uint16_t pixel = py * DISPLAY_WIDTH + px;
