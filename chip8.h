@@ -16,15 +16,14 @@
 #define FONT_SIZE_BYTES 5
 
 typedef struct Chip8Quirks {
+  bool shift_uses_vx;
+  bool load_store_increment_i;
   // logic opcodes reset VF to 0
   bool logic_resets_vf;
-  bool load_store_increment_i;
   // throttle draw opcode to one execution per frame
   bool draw_waits_for_vblank;
   // sprites get clipped at edge of display (no wrap)
   bool clip_sprites;
-  bool shift_uses_vx;
-  bool jump_uses_vx;
 } Chip8Quirks;
 
 typedef struct Chip8 {
@@ -43,7 +42,7 @@ typedef struct Chip8 {
   uint8_t FX0A_key;
   uint8_t FX0A_reg;
   bool draw_permitted;
-  Chip8Quirks *quirks;
+  const Chip8Quirks *quirks;
 } Chip8;
 
 typedef enum Chip8EventType { CHIP8_KEY_DOWN, CHIP8_KEY_UP } Chip8EventType;
@@ -54,7 +53,7 @@ typedef uint64_t (*chip8_time_func)(void);
 typedef void (*chip8_sleep_func)(uint32_t ms);
 
 void chip8_init(Chip8 *chip, double clock_speed, bool debug,
-                Chip8Quirks *quirks);
+                const Chip8Quirks *quirks);
 
 int chip8_load_rom(Chip8 *chip, const char *filename);
 

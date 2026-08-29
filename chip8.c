@@ -37,7 +37,7 @@ double cycles_per_second;
  * initialize chip8 struct and set global variables
  */
 void chip8_init(Chip8 *chip, double clock_speed, bool debug_flag,
-                Chip8Quirks *quirks) {
+                const Chip8Quirks *quirks) {
   memset(chip, 0, sizeof(Chip8));
   chip->PC = PROGRAM_START;
   cycles_per_second = clock_speed;

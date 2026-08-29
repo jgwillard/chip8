@@ -20,12 +20,24 @@ Chip8 chip;
 /**
  * original chip8 quirks flags
  */
-Chip8Quirks quirks = {.logic_resets_vf = true,
-                      .load_store_increment_i = true,
-                      .draw_waits_for_vblank = true,
-                      .clip_sprites = true,
-                      .shift_uses_vx = false,
-                      .jump_uses_vx = false};
+const Chip8Quirks vip_quirks = {
+    .shift_uses_vx = false,
+    .load_store_increment_i = true,
+    .logic_resets_vf = true,
+    .clip_sprites = true,
+    .draw_waits_for_vblank = true,
+};
+
+/**
+ * octo quirks flags
+ */
+const Chip8Quirks octo_quirks = {
+    .shift_uses_vx = false,
+    .load_store_increment_i = true,
+    .logic_resets_vf = false,
+    .clip_sprites = false,
+    .draw_waits_for_vblank = false,
+};
 
 void renderer_init(SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -147,17 +159,36 @@ int main(int argc, char *argv[]) {
   const char *rom_path = NULL;
   bool debug = false;
   double clock_speed = 6000.0;
+  const Chip8Quirks *profile = &octo_quirks;
 
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--debug") == 0) {
-      debug = 1;
+      debug = true;
+
     } else if (strcmp(argv[i], "--clock-speed") == 0) {
-      if (i + 1 < argc) {
-        clock_speed = atof(argv[++i]);
-      } else {
+      if (i + 1 >= argc) {
         fprintf(stderr, "Missing value for --clock-speed\n");
         return 1;
       }
+
+      clock_speed = atof(argv[++i]);
+
+    } else if (strcmp(argv[i], "--profile") == 0) {
+      if (i + 1 >= argc) {
+        fprintf(stderr, "Missing value for --profile\n");
+        return 1;
+      }
+
+      if (strcmp(argv[i + 1], "vip") == 0) {
+        profile = &vip_quirks;
+      } else if (strcmp(argv[i + 1], "octo") == 0) {
+        // no op, octo is default
+        printf("got here\n");
+      } else {
+        fprintf(stderr, "Unknown profile: %s\n", argv[i]);
+      }
+      i++;
+
     } else {
       if (rom_path == NULL) {
         rom_path = argv[i];
@@ -177,6 +208,7 @@ int main(int argc, char *argv[]) {
   printf("ROM: %s\n", rom_path);
   printf("Debug mode: %s\n", debug ? "ON" : "OFF");
   printf("Clock speed: %.1f Hz\n", clock_speed);
+  printf("Profile: %s\n", profile == &vip_quirks ? "vip" : "octo");
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -202,7 +234,7 @@ int main(int argc, char *argv[]) {
 
   renderer_init(renderer);
 
-  chip8_init(&chip, clock_speed, debug, &quirks);
+  chip8_init(&chip, clock_speed, debug, profile);
 
   int load_err = chip8_load_rom(&chip, rom_path);
   if (load_err) {
