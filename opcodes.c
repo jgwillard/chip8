@@ -305,8 +305,13 @@ void op_DXYN(Chip8 *chip, uint16_t opcode) {
       if (chip->quirks->clip_sprites && px >= DISPLAY_WIDTH) {
         break;
       }
+      // wrap sprites if clip flag is not set
+      py %= DISPLAY_HEIGHT;
+      px %= DISPLAY_WIDTH;
       uint16_t pixel = py * DISPLAY_WIDTH + px;
       chip->display[pixel] ^= bit;
+      // if the bit value was 1 and the display value is now 0, there
+      // must have been a collision
       if (chip->display[pixel] == 0 && bit == 1) {
         chip->V[0xF] = 1;
       }
