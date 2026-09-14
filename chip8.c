@@ -10,6 +10,7 @@
 #include "chip8.h"
 #include "opcodes.h"
 
+// TODO add octo font and switch based on profile
 uint8_t vip_font[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x60, 0x20, 0x20, 0x20, 0x70, // 1

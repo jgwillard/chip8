@@ -1,7 +1,9 @@
+#include "SDL_audio.h"
 #include "SDL_events.h"
 #include "SDL_timer.h"
 #include <SDL.h>
 
+#include <limits.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -11,6 +13,14 @@
 #define SCALE 10
 #define SCREEN_WIDTH (DISPLAY_WIDTH * SCALE)
 #define SCREEN_HEIGHT (DISPLAY_HEIGHT * SCALE)
+
+#define DSP_FREQUENCY 44100
+#define TONE_FREQUENCY 440
+
+typedef struct AudioState {
+  double phase;
+  double freq;
+} AudioState;
 
 /**
  * the emulator instance
@@ -45,7 +55,27 @@ void renderer_init(SDL_Renderer *renderer) {
   SDL_RenderPresent(renderer);
 }
 
-void render_display(void *userdata) {
+void audio_callback(void *userdata, Uint8 *stream, int len) {
+  AudioState *state = userdata;
+
+  Sint16 *samples = (Sint16 *)stream;
+  int count = len / sizeof(Sint16);
+
+  bool is_buzzer_on = chip.sound_timer;
+
+  for (int i = 0; i < count; i++) {
+
+    samples[i] = is_buzzer_on ? (state->phase < 0.5 ? SHRT_MAX : SHRT_MIN) : 0;
+
+    state->phase += (double)state->freq / DSP_FREQUENCY;
+
+    if (state->phase >= 1.0) {
+      state->phase -= 1.0;
+    }
+  }
+}
+
+void draw(void *userdata) {
   SDL_Renderer *renderer = (SDL_Renderer *)userdata;
 
   // clear screen before redrawing
@@ -135,7 +165,7 @@ void handle_key_events(SDL_Event e, Chip8 *chip) {
   }
 }
 
-bool handle_sdl_events(Chip8 *chip) {
+bool handle_events(Chip8 *chip) {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {
@@ -210,7 +240,7 @@ int main(int argc, char *argv[]) {
   printf("Clock speed: %.1f Hz\n", clock_speed);
   printf("Profile: %s\n", profile == &vip_quirks ? "vip" : "octo");
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     return 1;
   }
@@ -234,6 +264,20 @@ int main(int argc, char *argv[]) {
 
   renderer_init(renderer);
 
+  AudioState state = {.freq = TONE_FREQUENCY, .phase = 0.0};
+
+  SDL_AudioSpec desired = {.freq = DSP_FREQUENCY,
+                           .format = AUDIO_S16SYS,
+                           .channels = 1,
+                           .samples = 512,
+                           .callback = audio_callback,
+                           .userdata = &state};
+
+  SDL_AudioSpec obtained;
+  SDL_AudioDeviceID device =
+      SDL_OpenAudioDevice(NULL, 0, &desired, &obtained, 0);
+  SDL_PauseAudioDevice(device, 0);
+
   chip8_init(&chip, clock_speed, debug, profile);
 
   int load_err = chip8_load_rom(&chip, rom_path);
@@ -241,8 +285,7 @@ int main(int argc, char *argv[]) {
     return load_err;
   }
 
-  chip8_run(&chip, render_display, handle_sdl_events, SDL_GetTicks64, SDL_Delay,
-            renderer);
+  chip8_run(&chip, draw, handle_events, SDL_GetTicks64, SDL_Delay, renderer);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
