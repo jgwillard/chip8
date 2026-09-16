@@ -75,6 +75,24 @@ void audio_callback(void *userdata, Uint8 *stream, int len) {
   }
 }
 
+SDL_AudioDeviceID audio_init(AudioState *state) {
+  state->freq = TONE_FREQUENCY;
+  state->phase = 0.0;
+
+  SDL_AudioSpec desired = {.freq = DSP_FREQUENCY,
+                           .format = AUDIO_S16SYS,
+                           .channels = 1,
+                           .samples = 512,
+                           .callback = audio_callback,
+                           .userdata = state};
+
+  SDL_AudioSpec obtained;
+  SDL_AudioDeviceID device =
+      SDL_OpenAudioDevice(NULL, 0, &desired, &obtained, 0);
+  SDL_PauseAudioDevice(device, 0);
+  return device;
+}
+
 void draw(void *userdata) {
   SDL_Renderer *renderer = (SDL_Renderer *)userdata;
 
@@ -264,19 +282,8 @@ int main(int argc, char *argv[]) {
 
   renderer_init(renderer);
 
-  AudioState state = {.freq = TONE_FREQUENCY, .phase = 0.0};
-
-  SDL_AudioSpec desired = {.freq = DSP_FREQUENCY,
-                           .format = AUDIO_S16SYS,
-                           .channels = 1,
-                           .samples = 512,
-                           .callback = audio_callback,
-                           .userdata = &state};
-
-  SDL_AudioSpec obtained;
-  SDL_AudioDeviceID device =
-      SDL_OpenAudioDevice(NULL, 0, &desired, &obtained, 0);
-  SDL_PauseAudioDevice(device, 0);
+  AudioState state;
+  SDL_AudioDeviceID device = audio_init(&state);
 
   chip8_init(&chip, clock_speed, debug, profile);
 
@@ -287,6 +294,7 @@ int main(int argc, char *argv[]) {
 
   chip8_run(&chip, draw, handle_events, SDL_GetTicks64, SDL_Delay, renderer);
 
+  SDL_CloseAudioDevice(device);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
